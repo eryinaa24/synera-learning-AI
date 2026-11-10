@@ -1,1 +1,152 @@
 
+/* ==========================================================================
+   SYNERA AI — Adaptive Learning Companion Stylesheet
+   DEMO VERSION
+   ========================================================================== */
+
+/* Base Background & Typography */
+body {
+  font-family: 'Inter', sans-serif;
+  background: radial-gradient(
+    circle at 20% 10%,
+    #2a164d 0%,
+    #120924 50%,
+    #090514 100%
+  );
+  color: #f3e8ff;
+  transition: background 0.4s ease;
+}
+
+/* DEMO Watermark */
+.demo-watermark {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  z-index: 99999;
+  padding: 7px 14px;
+  background: rgba(30, 20, 50, 0.95);
+  color: #ffffff;
+  border: 1px solid rgba(192, 132, 252, 0.7);
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  pointer-events: none;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Footer Watermark */
+.demo-footer {
+  text-align: center;
+  padding: 16px;
+  color: rgba(243, 232, 255, 0.65);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+}
+
+/* Adaptive Sky Theme Toggle */
+body.sky-theme {
+  background: linear-gradient(
+    180deg,
+    #0c4a6e 0%,
+    #1e1b4b 55%,
+    #090514 100%
+  );
+}
+
+/* Glassmorphism Card Panels */
+.glass-card {
+  background: linear-gradient(
+    145deg,
+    rgba(38, 23, 68, 0.72) 0%,
+    rgba(19, 11, 35, 0.86) 100%
+  );
+  border: 1px solid rgba(168, 85, 247, 0.22);
+  box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(16px);
+}
+
+/* Active Highlighted Glass Card */
+.glass-card-active {
+  background: linear-gradient(
+    145deg,
+    rgba(109, 40, 217, 0.36) 0%,
+    rgba(46, 16, 101, 0.78) 100%
+  );
+  border: 1.5px solid rgba(192, 132, 252, 0.8);
+  box-shadow: 0 0 24px rgba(139, 92, 246, 0.25);
+}
+
+/* Cloud-Themed Quiz Buttons */
+.cloud-btn {
+  border-radius: 9999px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.cloud-btn:hover {
+  transform: translateY(-3px) scale(1.01);
+}
+
+/* Gentle Floating Cloud Animations */
+@keyframes floatSlow {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.float-cloud {
+  animation: floatSlow 4s ease-in-out infinite;
+}
+
+.float-cloud-delayed {
+  animation: floatSlow 4.5s ease-in-out 1.2s infinite;
+}
+
+/* Multimodal Animation Arrow Pulse */
+@keyframes dataFlow {
+  0% {
+    transform: translateX(0);
+    opacity: 0.4;
+  }
+  50% {
+    transform: translateX(12px);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 0.4;
+  }
+}
+
+.anim-pulse-flow {
+  animation: dataFlow 2.2s ease-in-out infinite;
+}
+
+/* Sleek Purple Custom Scrollbar */
+.custom-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb {
+  background-color: rgba(168, 85, 247, 0.35);
+  border-radius: 9999px;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(168, 85, 247, 0.6);
+}
+
+/* Accessibility: Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
