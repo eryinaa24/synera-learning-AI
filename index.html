@@ -1,1 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SYNERA — Personal Adaptive Learning Companion</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <!-- PDF.js & JSZip for Real Client-Side PDF and PPTX Text Extraction -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body id="app-body" class="min-h-screen antialiased selection:bg-purple-500 selection:text-white">
 
+  <!-- TOP NAVIGATION BAR -->
+  <header class="sticky top-0 z-40 glass-card border-b border-purple-500/20 px-4 sm:px-8 py-3.5">
+    <div class="max-w-5xl mx-auto flex items-center justify-between gap-3">
+      
+      <!-- Left: Hamburger Button + Brand Title -->
+      <div class="flex items-center gap-3">
+        <button id="hamburger-btn" type="button" aria-label="Open Navigation Menu" class="w-11 h-11 rounded-2xl bg-purple-900/60 hover:bg-purple-800/80 border border-purple-400/30 flex flex-col items-center justify-center gap-1.5 transition">
+          <span class="w-5 h-0.5 bg-purple-100 rounded-full"></span>
+          <span class="w-5 h-0.5 bg-purple-100 rounded-full"></span>
+          <span class="w-5 h-0.5 bg-purple-100 rounded-full"></span>
+        </button>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="font-black text-lg tracking-tight text-white">SYNERA</span>
+            <span id="active-section-badge" class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-purple-500/25 text-purple-200 border border-purple-400/30">
+              1. Overview &amp; Context
+            </span>
+          </div>
+          <p class="text-[11px] text-purple-300/70 hidden sm:block">Personal Adaptive Learning Companion</p>
+        </div>
+      </div>
+
+      <!-- Right: Quick Actions -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <button type="button" data-phase="2" class="phase-tab-btn hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-fuchsia-600/30 hover:bg-fuchsia-600/50 text-fuchsia-200 border border-fuchsia-400/40 transition">
+          📤 Upload Materials
+        </button>
+        <button id="toggle-sky-theme-btn" type="button" class="px-3 py-2 rounded-xl text-xs font-semibold bg-sky-500/20 hover:bg-sky-500/30 text-sky-200 border border-sky-400/30 transition">
+          ☁️ Cloud Theme
+        </button>
+        <button id="toggle-agent-drawer-btn" type="button" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-purple-600 hover:bg-purple-500 text-white shadow-lg shadow-purple-600/30 flex items-center gap-1.5 transition">
+          <span>🧠 Agent Brain</span>
+          <span id="error-log-counter" class="px-1.5 py-0.5 text-[10px] rounded-full bg-white/20">0</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- HAMBURGER SLIDE-OVER NAVIGATION DRAWER -->
+  <div id="menu-backdrop" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 hidden"></div>
+  <aside id="hamburger-drawer" class="fixed top-0 left-0 h-full w-72 glass-card border-r border-purple-500/30 z-50 p-5 flex flex-col justify-between transition-transform duration-300 -translate-x-full">
+    <div class="space-y-6">
+      <div class="flex items-center justify-between border-b border-purple-500/20 pb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-500 to-fuchsia-600 flex items-center justify-center font-black text-white">S</div>
+          <div>
+            <p class="font-extrabold text-sm text-white">SYNERA</p>
+            <p class="text-[10px] text-purple-300">Adaptive Study Companion</p>
+          </div>
+        </div>
+        <button id="close-hamburger-btn" type="button" class="w-8 h-8 rounded-lg bg-purple-950/80 hover:bg-purple-900 text-purple-200 text-xs font-bold">✕</button>
+      </div>
+
+      <!-- 7 Clean Module Links -->
+      <nav aria-label="Module Navigation" class="space-y-1.5">
+        <button type="button" data-phase="1" class="phase-tab-btn w-full text-left px-3.5 py-3 rounded-2xl text-xs font-bold bg-purple-600 text-white flex items-center gap-3 transition">
+          <span>🏠</span>
+          <span>1. Overview &amp; Context</span>
+        </button>
+        <button type="button" data-phase="2" class="phase-tab-btn w-full text-left px-3.5 py-3 rounded-2xl text-xs font-semibold text-purple-200 hover:bg-purple-900/50 flex items-center gap-3 transition">
+          <span>📤</span>
+          <span>2. Upload Materials &amp; Studio</span>
+        </button>
+        <button type="button" data-phase="3" class="phase-tab-btn w-full text-left px-3.5 py-3 rounded-2xl text-xs font-semibold text-purple-200 hover:bg-purple-900/50 flex items-center gap-3 transition">
+          <span>☁️</span>
+          <span>3. Adaptive Cloud Quiz</span>
+        </button>
+        <button type="button" data-phase="4" class="phase-tab-btn w-full text-left px-3.5 py-3 rounded-2xl text-xs font-semibold text-purple-200 hover:bg-purple-900/50 flex items-center gap-3 transition">
+          <span>🔄</span>
+          <span>4. Error Log (1, 3, 5, 7 Days)</span>
+        </button>
+        <button type="button" data-phase="5" class="phase-tab-btn w-full text-left px-3.5 py-3 rounded-2xl text-xs font-semibold text-purple-200 hover:bg-purple-900/50 flex items-center gap-3 transition">
+          <span>🎧</span>
+          <span>5. Lofi &amp; Rain Soundscape</span>
+        </button>
+        <button type="button" data-phase="6" class="phase-tab-btn w-full text-left px-3.5 py-3 rounded-2xl text-xs font-semibold text-purple-200 hover:bg-purple-900/50 flex items-center gap-3 transition">
+          <span>⏱️</span>
+          <span>6. Study Timer &amp; Break Guard</span>
+        </button>
+        <button type="button" data-phase="7" class="phase-tab-btn w-full text-left px-3.5 py-3 rounded-2xl text-xs font-semibold text-purple-200 hover:bg-purple-900/50 flex items-center gap-3 transition">
+          <span>💬</span>
+          <span>7. Study DNA &amp; AI Chat</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- Clean Student Profile Footer -->
+    <div class="p-3.5 rounded-2xl bg-purple-950/70 border border-purple-500/25 flex items-center gap-3">
+      <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-pink-500 to-purple-500 flex items-center justify-center font-bold text-xs text-white shrink-0">
+        ER
+      </div>
+      <div class="min-w-0">
+        <p class="text-xs font-bold text-white truncate">Erina</p>
+        <p class="text-[10px] text-purple-300 truncate">New Session Ready ✨</p>
+      </div>
+    </div>
+  </aside>
+
+  <!-- SYNERA AGENT BRAIN SLIDE-OVER DRAWER -->
+  <aside id="agent-brain-drawer" class="fixed top-0 right-0 h-full w-80 sm:w-96 glass-card border-l border-purple-500/30 z-50 p-5 flex flex-col justify-between transition-transform duration-300 translate-x-full">
+    <div class="space-y-4 flex-1 flex flex-col min-h-0">
+      <div class="flex items-center justify-between border-b border-purple-500/20 pb-3">
+        <div>
+          <h2 class="font-extrabold text-base text-white">🧠 Synera Agent Brain</h2>
+          <p class="text-[11px] text-purple-300">Autonomous 6-Step Decision Stream</p>
+        </div>
+        <button id="close-agent-drawer-btn" type="button" class="w-8 h-8 rounded-lg bg-purple-950/80 hover:bg-purple-900 text-purple-200 text-xs font-bold">✕</button>
+      </div>
+
+      <div class="grid grid-cols-3 gap-2 text-center text-[11px]">
+        <div class="p-2 rounded-xl bg-purple-950/80 border border-purple-500/30">
+          <span class="text-purple-400 font-bold block text-[10px]">3. PLAN</span>
+          <strong id="agent-perceive-text" class="text-white truncate block">On the Bus</strong>
+        </div>
+        <div class="p-2 rounded-xl bg-purple-950/80 border border-purple-500/30">
+          <span class="text-purple-400 font-bold block text-[10px]">4. ACT</span>
+          <strong id="agent-act-text" class="text-white truncate block">Cloud Quiz</strong>
+        </div>
+        <div class="p-2 rounded-xl bg-purple-950/80 border border-purple-500/30">
+          <span class="text-purple-400 font-bold block text-[10px]">5. OBSERVE</span>
+          <strong id="agent-reason-text" class="text-emerald-300 truncate block">Ready</strong>
+        </div>
+      </div>
+
+      <div id="agent-log-list" class="flex-1 overflow-y-auto custom-scroll space-y-2.5 pr-1"></div>
+    </div>
+
+    <div class="pt-3 border-t border-purple-500/20 flex items-center justify-between gap-2">
+      <button id="simulate-agent-btn" type="button" class="flex-1 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-xs font-bold text-white transition">
+        ⚡ Simulate Agent Step
+      </button>
+      <button id="clear-log-btn" type="button" class="px-3 py-2 rounded-xl bg-purple-950 hover:bg-purple-900 text-xs text-purple-300">
+        Clear
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN CENTERED CONTAINER -->
+  <main class="max-w-5xl mx-auto px-4 sm:px-8 py-8">
+
+    <!-- =========================================================
+         VIEW 1: OVERVIEW & CONTEXT ENGINE
+         ========================================================= -->
+    <section id="view-phase-1" class="app-view space-y-6">
+      
+      <!-- Greeting + Circular Readiness Summary -->
+      <div class="glass-card rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+        <div class="space-y-2">
+          <span class="text-xs font-bold uppercase tracking-widest text-purple-300">Welcome to Synera</span>
+          <h1 class="text-2xl sm:text-3xl font-extrabold text-white">Hi, Erina! Ready to start studying today?</h1>
+          <p id="recommended-mode-title" class="text-sm text-emerald-300 font-medium">
+            Recommended Session: 30-Min On the Bus (Moderate Energy · Quick revision)
+          </p>
+          <div class="pt-1 flex flex-wrap gap-2.5">
+            <button type="button" data-phase="2" class="phase-tab-btn px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-500 hover:to-fuchsia-500 text-xs font-bold text-white shadow-md">
+              📤 Upload Lecture Materials →
+            </button>
+            <button type="button" data-phase="7" class="phase-tab-btn px-4 py-2 rounded-xl bg-purple-950/80 hover:bg-purple-900 border border-purple-400/30 text-xs font-semibold text-purple-200">
+              💬 Ask Synera AI Chat
+            </button>
+          </div>
+        </div>
+        <div class="flex items-center gap-4 shrink-0 bg-purple-950/70 border border-purple-500/30 px-5 py-3.5 rounded-2xl">
+          <div>
+            <span class="text-[11px] uppercase font-bold text-purple-300 block">Session Engagement</span>
+            <span id="engagement-score-value" class="text-2xl font-black text-white">78 / 100</span>
+          </div>
+          <div class="w-14 h-14 rounded-full border-4 border-purple-400 flex items-center justify-center bg-purple-900/40">
+            <span id="readiness-ring-text" class="text-xs font-extrabold text-white">78%</span>
+          </div>
+          <span id="focus-score-badge" class="hidden">78%</span>
+        </div>
+      </div>
+
+      <!-- Step 1: Where are you studying today? -->
+      <div class="glass-card rounded-3xl p-6 sm:p-8 space-y-6">
+        <div>
+          <h2 class="text-lg font-extrabold text-white">1. Where are you studying right now?</h2>
+          <p class="text-xs text-purple-200/70 mt-0.5">Synera adapts your quiz UI, session length, and learning format based on your real-world context.</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5" id="context-cards-container">
+          <button type="button" data-context="bus" class="context-card glass-card-active text-left p-4 rounded-2xl transition space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-2xl">🚌</span>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-500 text-white">Selected</span>
+            </div>
+            <h3 class="font-bold text-sm text-white">On the Bus</h3>
+            <p class="text-xs text-purple-200/80">30m commute · Cloud UI</p>
+          </button>
+
+          <button type="button" data-context="library" class="context-card glass-card text-left p-4 rounded-2xl transition hover:border-purple-400/50 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-2xl">📚</span>
+              <span class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-purple-950 text-purple-300">Select</span>
+            </div>
+            <h3 class="font-bold text-sm text-white">At the Library</h3>
+            <p class="text-xs text-purple-200/70">90m deep work · Error Log</p>
+          </button>
+
+          <button type="button" data-context="home" class="context-card glass-card text-left p-4 rounded-2xl transition hover:border-purple-400/50 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-2xl">🏠</span>
+              <span class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-purple-950 text-purple-300">Select</span>
+            </div>
+            <h3 class="font-bold text-sm text-white">At Home</h3>
+            <p class="text-xs text-purple-200/70">60m pace · Story + Podcast</p>
+          </button>
+
+          <button type="button" data-context="between" class="context-card glass-card text-left p-4 rounded-2xl transition hover:border-purple-400/50 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-2xl">⏳</span>
+              <span class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-purple-950 text-purple-300">Select</span>
+            </div>
+            <h3 class="font-bold text-sm text-white">Between Classes</h3>
+            <p class="text-xs text-purple-200/70">15m gap · Quick Flash Recall</p>
+          </button>
+        </div>
+
+        <!-- Time, Energy & Goal Controls -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 pt-4 border-t border-purple-500/20">
+          <div class="bg-purple-950/50 p-4 rounded-2xl border border-purple-500/20">
+            <div class="flex justify-between text-xs font-semibold mb-2">
+              <label for="time-slider" class="text-purple-200">⏱️ Available Time</label>
+              <span id="time-value-label" class="text-purple-300 font-bold">30 minutes</span>
+            </div>
+            <input id="time-slider" type="range" min="10" max="120" step="5" value="30" class="w-full accent-purple-500 cursor-pointer" />
+          </div>
+
+          <div class="bg-purple-950/50 p-4 rounded-2xl border border-purple-500/20">
+            <div class="flex justify-between text-xs font-semibold mb-2">
+              <label for="energy-slider" class="text-purple-200">🔋 Energy Level</label>
+              <span id="energy-value-label" class="text-emerald-300 font-bold">Moderate</span>
+            </div>
+            <input id="energy-slider" type="range" min="10" max="100" step="5" value="75" class="w-full accent-emerald-400 cursor-pointer" />
+          </div>
+
+          <div class="bg-purple-950/50 p-4 rounded-2xl border border-purple-500/20 space-y-2">
+            <span class="text-xs font-semibold text-purple-200 block">🎯 Session Goal</span>
+            <div class="grid grid-cols-3 gap-1.5">
+              <button type="button" data-goal="Quick revision" class="goal-btn py-1.5 rounded-lg text-[11px] font-bold bg-purple-600 text-white">Revision</button>
+              <button type="button" data-goal="Learn new topic" class="goal-btn py-1.5 rounded-lg text-[11px] font-medium bg-purple-900/50 text-purple-200">New Topic</button>
+              <button type="button" data-goal="Practise weak topics" class="goal-btn py-1.5 rounded-lg text-[11px] font-medium bg-purple-900/50 text-purple-200">Weak Areas</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4 Evidence-Based Engagement Metrics -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="glass-card rounded-2xl p-4 space-y-1">
+          <span class="text-xs text-purple-300">Quiz Accuracy</span>
+          <p id="metric-accuracy" class="text-base font-extrabold text-white">No quizzes yet (0/0)</p>
+          <span class="text-[11px] text-purple-300/70 block">Upload materials to start</span>
+        </div>
+        <div class="glass-card rounded-2xl p-4 space-y-1">
+          <span class="text-xs text-purple-300">Response Consistency</span>
+          <p id="metric-consistency" class="text-base font-extrabold text-white">No data yet</p>
+          <span class="text-[11px] text-purple-300/70 block">Tracked during quizzes</span>
+        </div>
+        <div class="glass-card rounded-2xl p-4 space-y-1">
+          <span class="text-xs text-purple-300">Adaptive Presentation</span>
+          <p id="ui-theme-recommendation" class="text-base font-extrabold text-sky-300">Cloud &amp; Mountain</p>
+          <span id="content-format-recommendation" class="text-[11px] text-purple-200 block">Short Quiz + Audio</span>
+          <span id="session-goal-recommendation" class="hidden">10 MCQs</span>
+        </div>
+        <div class="glass-card rounded-2xl p-4 flex flex-col justify-between">
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-purple-300">Distraction Sensor</span>
+            <button id="toggle-permission-btn" type="button" class="px-2 py-0.5 rounded bg-purple-600/50 text-[10px] font-bold text-white">Permitted</button>
+          </div>
+          <p id="distraction-status-text" class="text-xs font-bold text-emerald-300 mt-2">Permission Granted · 0 Switches</p>
+          <div class="w-full h-1.5 rounded-full bg-purple-950 overflow-hidden mt-2">
+            <div id="focus-progress-bar" class="h-full bg-emerald-400" style="width: 78%;"></div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- =========================================================
+         VIEW 2: UPLOAD LECTURE MATERIALS & 10-QUESTION QUIZ GENERATOR
+         ========================================================= -->
+    <section id="view-phase-2" class="app-view hidden space-y-6">
+      <div class="glass-card rounded-3xl p-6 sm:p-8 space-y-6">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-purple-300">Module 2 · Upload Materials &amp; AI Studio</span>
+            <h2 class="text-2xl font-extrabold text-white mt-0.5">Upload Lecture File (PDF, PPTX, TXT) → Generate 10-Question Quiz</h2>
+          </div>
+          <div class="flex flex-wrap items-center gap-2.5">
+            <!-- Clearly Visible "Generate Quiz" Button (Revealed after successful content processing) -->
+            <button id="generate-quiz-btn" type="button" class="hidden px-5 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-xs sm:text-sm font-extrabold text-white shadow-lg shadow-emerald-600/30 transition">
+              🎯 Generate Quiz (10 MCQs)
+            </button>
+            <button id="generate-multimodal-btn" type="button" class="px-4 py-3 rounded-2xl bg-purple-600/80 hover:bg-purple-600 text-xs font-bold text-white border border-purple-400/40 transition">
+              ✨ Process &amp; Analyse Text
+            </button>
+          </div>
+        </div>
+
+        <!-- Loading & Error / Extraction Status Banner -->
+        <div id="upload-status-box" class="hidden p-4 rounded-2xl border text-xs sm:text-sm font-semibold"></div>
+
+        <!-- Subject Name + File Upload Dropzone (PDF, PPTX, TXT) + Textarea -->
+        <div class="space-y-3">
+          <div class="flex flex-col sm:flex-row gap-3">
+            <input id="subject-name-input" type="text" placeholder="Enter Subject / Topic Name (e.g., Operating Systems, Microeconomics)..." class="flex-1 rounded-2xl bg-purple-950/70 border border-purple-500/30 px-4 py-2.5 text-xs sm:text-sm text-white placeholder-purple-300/50 focus:outline-none focus:border-purple-400" />
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-stretch">
+            <label for="lecture-file-input" class="md:col-span-5 cursor-pointer rounded-2xl border-2 border-dashed border-purple-400/50 hover:border-purple-300 bg-purple-950/40 hover:bg-purple-900/40 p-5 flex flex-col items-center justify-center text-center transition space-y-2">
+              <span class="text-3xl">📂</span>
+              <span class="text-xs sm:text-sm font-bold text-white">Upload Lecture File (PDF, PPTX, TXT)</span>
+              <span class="text-[11px] text-purple-300">Real text extraction from .pdf, .pptx, and .txt files</span>
+              <input id="lecture-file-input" type="file" accept=".pdf,.pptx,.txt" class="hidden" />
+              <span id="uploaded-file-badge" class="mt-2 inline-block px-3 py-1 rounded-full bg-purple-900/60 text-purple-300 border border-purple-500/30 text-[11px] font-semibold">
+                No file uploaded yet
+              </span>
+            </label>
+
+            <div class="md:col-span-7 flex flex-col justify-between space-y-2">
+              <label for="study-input-text" class="text-xs font-semibold text-purple-200">Extracted File Content / Study Notes (Editable):</label>
+              <textarea id="study-input-text" rows="5" class="w-full flex-1 rounded-2xl bg-purple-950/70 border border-purple-500/30 p-4 text-xs sm:text-sm text-white placeholder-purple-300/50 focus:outline-none focus:border-purple-400" placeholder="Upload a PDF, PPTX, or TXT file on the left to extract its text here, or paste your lecture notes directly, then click 'Process & Analyse Text'!"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Format Switcher Tabs -->
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 pt-2">
+          <button type="button" data-studio="quiz" class="studio-tab-btn py-2.5 px-3 rounded-xl text-xs font-bold bg-purple-600 text-white">❓ 10-Question Quiz</button>
+          <button type="button" data-studio="notes" class="studio-tab-btn py-2.5 px-3 rounded-xl text-xs font-semibold bg-purple-950/70 text-purple-200 border border-purple-500/30">📝 Extracted Notes</button>
+          <button type="button" data-studio="story" class="studio-tab-btn py-2.5 px-3 rounded-xl text-xs font-semibold bg-purple-950/70 text-purple-200 border border-purple-500/30">📖 Short Story</button>
+          <button type="button" data-studio="podcast" class="studio-tab-btn py-2.5 px-3 rounded-xl text-xs font-semibold bg-purple-950/70 text-purple-200 border border-purple-500/30">🎙️ AI Podcast</button>
+          <button type="button" data-studio="animation" class="studio-tab-btn py-2.5 px-3 rounded-xl text-xs font-semibold bg-purple-950/70 text-purple-200 border border-purple-500/30 col-span-2 sm:col-span-1">🎬 Animation</button>
+        </div>
+
+        <!-- Panel 1: 10-Question One-at-a-Time Interactive Quiz -->
+        <div id="studio-panel-quiz" class="studio-panel p-5 rounded-2xl bg-purple-950/60 border border-purple-500/25 space-y-4 text-xs sm:text-sm">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <h3 id="studio-quiz-title" class="font-bold text-white text-base">No Quiz Generated Yet</h3>
+            <div class="flex items-center gap-2">
+              <span id="studio-quiz-score-badge" class="hidden px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-xs font-bold">
+                Score: 0 / 0
+              </span>
+              <button type="button" data-phase="3" class="phase-tab-btn px-3.5 py-1.5 rounded-xl bg-sky-500/20 hover:bg-sky-500/30 text-sky-200 border border-sky-400/30 text-xs font-bold">
+                ☁️ Open Cloud UI Mode →
+              </button>
+            </div>
+          </div>
+
+          <div id="studio-quiz-container" class="p-6 rounded-2xl bg-purple-900/30 border border-purple-500/20 text-center text-purple-300/80">
+            Upload a supported lecture file (<strong>PDF, PPTX, or TXT</strong>) or paste your study notes above, click <strong>"✨ Process &amp; Analyse Text"</strong>, and then click the green <strong>"🎯 Generate Quiz (10 MCQs)"</strong> button!
+          </div>
+        </div>
+
+        <!-- Panel 2: Extracted Simple Notes -->
+        <div id="studio-panel-notes" class="studio-panel hidden p-5 rounded-2xl bg-purple-950/60 border border-purple-500/25 space-y-3 text-xs sm:text-sm">
+          <h3 id="generated-notes-title" class="font-bold text-purple-200 text-base">No Notes Extracted Yet</h3>
+          <ul id="generated-notes-list" class="list-disc pl-5 space-y-1.5 text-purple-300/70">
+            <li>Upload a lecture file (PDF, PPTX, TXT) to extract and summarise key points here.</li>
+          </ul>
+        </div>
+
+        <!-- Panel 3: Short Fiction Story -->
+        <div id="studio-panel-story" class="studio-panel hidden p-5 rounded-2xl bg-purple-950/60 border border-purple-500/25 space-y-3 text-xs sm:text-sm">
+          <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-pink-500/20 text-pink-200">Fictional Story Mode</span>
+          <h3 id="generated-story-title" class="font-bold text-white text-base">No Story Generated Yet</h3>
+          <p id="generated-story-body" class="text-purple-300/75 leading-relaxed">
+            No story available yet. Process your uploaded lecture file first to generate a contextual story!
+          </p>
+        </div>
+
+        <!-- Panel 4: Podcast -->
+        <div id="studio-panel-podcast" class="studio-panel hidden p-5 rounded-2xl bg-purple-950/60 border border-purple-500/25 space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="font-bold text-white text-base">🎙️ Synera AI Study Podcast (With Subtitles)</h3>
+              <p id="podcast-episode-label" class="text-xs text-purple-300">No episode generated yet — upload notes first.</p>
+            </div>
+            <button id="play-podcast-tts-btn" type="button" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-bold text-white">
+              🔊 Listen to AI Podcast
+            </button>
+          </div>
+          <div id="podcast-subtitle-box" class="p-4 rounded-xl bg-black/60 border border-purple-400/30 text-center text-sm font-semibold text-purple-300/70">
+            [No podcast script yet. Upload your notes and click Process!]
+          </div>
+        </div>
+
+        <!-- Panel 5: Visual Animation -->
+        <div id="studio-panel-animation" class="studio-panel hidden p-5 rounded-2xl bg-purple-950/60 border border-purple-500/25 space-y-4">
+          <h3 class="font-bold text-white text-base">🎬 Concept Animation</h3>
+          <div id="animation-stage-box" class="p-5 rounded-xl bg-purple-900/30 border border-purple-500/20 text-center text-xs text-purple-300/80">
+            No animation generated yet. Upload your study notes above and click <strong>Process</strong> to visualize the key concepts!
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- =========================================================
+         VIEW 3: ADAPTIVE CLOUD QUIZ + "TEACH ME BACK"
+         ========================================================= -->
+    <section id="view-phase-3" class="app-view hidden space-y-6">
+      <div id="mountain-quiz-card" class="rounded-3xl border border-sky-400/30 bg-gradient-to-b from-sky-900/80 via-indigo-950/90 to-purple-950 p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+        <svg class="absolute bottom-0 left-0 w-full h-28 opacity-25 pointer-events-none" viewBox="0 0 1440 320" preserveAspectRatio="none">
+          <path fill="#38bdf8" d="M0,224L120,192C240,160,480,96,720,112C960,128,1200,224,1320,272L1440,320L0,320Z"></path>
+          <path fill="#a855f7" d="M0,288L160,240C320,192,640,96,960,112C1280,128,1360,224,1440,256L1440,320L0,320Z"></path>
+        </svg>
+
+        <div class="relative z-10 space-y-6 max-w-2xl mx-auto">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold px-3 py-1 rounded-full bg-white/15 text-sky-200 border border-white/20">
+              ☁️ Cloud &amp; Mountain Adaptive UI
+            </span>
+            <span id="cloud-quiz-topic-badge" class="text-xs text-sky-200 font-semibold">No Topic Loaded Yet</span>
+          </div>
+
+          <!-- Empty State before user uploads/generates quiz -->
+          <div id="cloud-quiz-empty-state" class="text-center bg-slate-950/80 backdrop-blur-md p-8 rounded-3xl border border-white/15 space-y-4">
+            <span class="text-3xl block">📭</span>
+            <h3 class="text-lg font-extrabold text-white">No Quiz Generated Yet</h3>
+            <p class="text-xs sm:text-sm text-sky-200/80 max-w-md mx-auto">
+              Upload a PDF, PPTX, or TXT file in Module 2 and click <strong>"🎯 Generate Quiz (10 MCQs)"</strong> to play your quiz in Cloud &amp; Mountain mode!
+            </p>
+            <button type="button" data-phase="2" class="phase-tab-btn px-5 py-2.5 rounded-2xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-extrabold text-xs transition">
+              📤 Go to Upload Materials (Module 2) →
+            </button>
+          </div>
+
+          <!-- Active Cloud Quiz Content -->
+          <div id="cloud-quiz-active-area" class="hidden space-y-5">
+            <div class="text-center bg-slate-950/80 backdrop-blur-md p-6 rounded-3xl border border-white/15 shadow-lg">
+              <span id="cloud-question-progress" class="text-[11px] uppercase tracking-widest text-sky-300 font-bold">Question 1 of 10</span>
+              <p id="cloud-question-text" class="text-base sm:text-xl font-extrabold text-white mt-2"></p>
+            </div>
+
+            <div id="cloud-options-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3.5"></div>
+
+            <div id="cloud-quiz-feedback" class="hidden rounded-2xl p-4 text-xs sm:text-sm font-semibold border backdrop-blur-md"></div>
+
+            <div class="flex justify-end">
+              <button id="cloud-next-q-btn" type="button" class="hidden px-5 py-2.5 rounded-2xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-extrabold text-xs transition">
+                Next Question →
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- "Teach Me Back" Feature -->
+      <div class="glass-card rounded-3xl p-6 space-y-4">
+        <span class="text-xs font-bold uppercase tracking-wider text-pink-300">Active Retrieval Practice · Teach Me Back</span>
+        <h3 class="text-lg font-extrabold text-white">Explain a concept from your notes in your own words:</h3>
+        <div class="flex flex-col sm:flex-row gap-3">
+          <input id="teach-back-input" type="text" placeholder="Type your explanation here as if teaching a 12-year-old..." class="flex-1 rounded-2xl bg-purple-950/70 border border-purple-500/30 px-4 py-3 text-xs sm:text-sm text-white placeholder-purple-300/50" />
+          <button id="evaluate-teach-btn" type="button" class="px-5 py-3 rounded-2xl bg-purple-600 hover:bg-purple-500 text-xs font-bold text-white shrink-0">
+            🤖 Evaluate Explanation
+          </button>
+        </div>
+        <div id="teach-back-feedback" class="hidden p-4 rounded-2xl bg-emerald-950/70 border border-emerald-400/40 text-xs text-emerald-200"></div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         VIEW 4: AUTO ERROR LOG & SPACED REPETITION
+         ========================================================= -->
+    <section id="view-phase-4" class="app-view hidden space-y-6">
+      <div class="glass-card rounded-3xl p-6 sm:p-8 space-y-5">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-rose-300">Module 4 · From Mistakes to Mastery</span>
+            <h2 class="text-2xl font-extrabold text-white mt-0.5">Adaptive Error Log (1, 3, 5, 7-Day Spaced Repetition)</h2>
+          </div>
+          <span class="text-xs px-3 py-1 rounded-full bg-rose-500/20 text-rose-200 border border-rose-400/30 font-bold">
+            Auto-Logged from Quizzes
+          </span>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs sm:text-sm">
+            <thead>
+              <tr class="border-b border-purple-500/30 text-purple-300 uppercase text-[11px]">
+                <th class="py-3 px-3">Topic &amp; Question</th>
+                <th class="py-3 px-3">Your Answer &amp; Explanation</th>
+                <th class="py-3 px-3">Revision Cycle</th>
+                <th class="py-3 px-3">Action</th>
+              </tr>
+            </thead>
+            <tbody id="error-log-table-body" class="divide-y divide-purple-500/15">
+              <tr id="error-log-empty-row">
+                <td colspan="4" class="py-8 text-center text-purple-300/70">
+                  No mistakes recorded yet. Incorrect answers from your generated 10-question quizzes will automatically appear here with their corresponding topic and a Day 1, 3, 5, and 7 review schedule!
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         VIEW 5: STUDY MUSIC & RAIN SOUNDSCAPE
+         ========================================================= -->
+    <section id="view-phase-5" class="app-view hidden space-y-6">
+      <div class="glass-card rounded-3xl p-6 sm:p-8 space-y-6">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-pink-300">Module 5 · Instant Audio Environment</span>
+            <h2 class="text-2xl font-extrabold text-white mt-0.5">Focus Soundscape &amp; Rain Ambience Mixer</h2>
+            <p class="text-xs text-purple-300 mt-0.5">Click any genre or press ON to hear instant looping study audio right inside the app!</p>
+          </div>
+          <button id="toggle-bgm-btn" type="button" class="px-5 py-2.5 rounded-2xl text-xs font-bold bg-purple-600 hover:bg-purple-500 text-white shadow-lg transition">
+            ▶️ Turn ON Music (Auto-Loop)
+          </button>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+          <button type="button" data-genre="lofi-hiphop" class="genre-btn p-4 rounded-2xl text-left border border-purple-400 bg-purple-600/30 text-white transition">
+            <span class="text-2xl block">🎧</span>
+            <span class="text-sm font-bold block mt-2">Lofi Hip-Hop</span>
+            <span class="text-xs text-purple-200">Warm Chill Beats</span>
+          </button>
+          <button type="button" data-genre="dark-academia" class="genre-btn p-4 rounded-2xl text-left border border-purple-500/20 bg-purple-950/50 text-purple-200 hover:bg-purple-900/40 transition">
+            <span class="text-2xl block">🏛️</span>
+            <span class="text-sm font-bold block mt-2">Dark Academia</span>
+            <span class="text-xs text-purple-300/70">Classical Library Strings</span>
+          </button>
+          <button type="button" data-genre="calm-piano" class="genre-btn p-4 rounded-2xl text-left border border-purple-500/20 bg-purple-950/50 text-purple-200 hover:bg-purple-900/40 transition">
+            <span class="text-2xl block">🎹</span>
+            <span class="text-sm font-bold block mt-2">Calm Piano</span>
+            <span class="text-xs text-purple-300/70">Peaceful Acoustic Keys</span>
+          </button>
+          <button type="button" data-genre="video-game" class="genre-btn p-4 rounded-2xl text-left border border-purple-500/20 bg-purple-950/50 text-purple-200 hover:bg-purple-900/40 transition">
+            <span class="text-2xl block">🎮</span>
+            <span class="text-sm font-bold block mt-2">Video Game</span>
+            <span class="text-xs text-purple-300/70">Cozy Gaming Vibes</span>
+          </button>
+          <button type="button" data-genre="lofi-jazz" class="genre-btn p-4 rounded-2xl text-left border border-purple-500/20 bg-purple-950/50 text-purple-200 hover:bg-purple-900/40 transition">
+            <span class="text-2xl block">🎷</span>
+            <span class="text-sm font-bold block mt-2">Lofi Jazz</span>
+            <span class="text-xs text-purple-300/70">Rainy Cafe Chords</span>
+          </button>
+          <button type="button" data-genre="kdrama-ost" class="genre-btn p-4 rounded-2xl text-left border border-purple-500/20 bg-purple-950/50 text-purple-200 hover:bg-purple-900/40 transition">
+            <span class="text-2xl block">🌸</span>
+            <span class="text-sm font-bold block mt-2">K-Drama Piano OST</span>
+            <span class="text-xs text-purple-300/70">Emotional Melodic Keys</span>
+          </button>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-purple-950/80 border border-purple-500/30 space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-2 text-xs">
+            <div>
+              <span class="font-bold text-purple-200">🎵 Active Stream: </span>
+              <strong id="now-playing-label" class="text-white">Lofi Hip-Hop (OFF · Click Turn ON to play from 0:00)</strong>
+            </div>
+            <span class="text-[11px] text-emerald-300 font-semibold">Instant In-App Audio Synthesizer + YouTube Embed</span>
+          </div>
+          <div id="youtube-player-wrapper" class="rounded-2xl overflow-hidden border border-purple-500/30 bg-black aspect-video max-w-xl mx-auto">
+            <iframe
+              id="youtube-iframe"
+              width="560"
+              height="315"
+              class="w-full h-full"
+              src="https://www.youtube-nocookie.com/embed/lTRiuFIWV54?si=hfSRjiKaSDlIuDP_&enablejsapi=1&loop=1&playlist=lTRiuFIWV54&start=0&rel=0"
+              title="YouTube video player"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerpolicy="strict-origin-when-cross-origin"
+              allowfullscreen>
+            </iframe>
+          </div>
+        </div>
+
+        <div class="p-5 rounded-2xl bg-purple-950/70 border border-purple-500/30 flex items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">🌧️</span>
+            <div>
+              <p class="text-sm font-bold text-white">Ambient Rain Sound Layer</p>
+              <p id="rain-status-text" class="text-xs text-purple-300">Can be played alone or mixed with any music genre: OFF</p>
+            </div>
+          </div>
+          <button id="toggle-rain-btn" type="button" class="px-5 py-2.5 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 transition">
+            Rain: OFF
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         VIEW 6: STUDY TIMER, POMODORO & REST REMINDERS (NO MEAL/HYDRATION!)
+         ========================================================= -->
+    <section id="view-phase-6" class="app-view hidden space-y-6">
+      <div class="glass-card rounded-3xl p-6 sm:p-8 space-y-6 max-w-2xl mx-auto">
+        <div class="text-center space-y-1">
+          <span class="text-xs font-bold uppercase tracking-wider text-emerald-300">Module 6 · Study-Time Monitoring &amp; Rest Companion</span>
+          <h2 class="text-2xl font-extrabold text-white">Pomodoro Focus Timer &amp; Over-Study Guard</h2>
+          <p class="text-xs text-purple-200/75">Regular break reminders during sessions and rest alerts when daily study exceeds 10 hours.</p>
+        </div>
+
+        <div class="text-center py-8 bg-purple-950/60 rounded-3xl border border-purple-500/25">
+          <span id="pomodoro-display" class="text-5xl sm:text-6xl font-black font-mono text-white">25:00</span>
+          <p class="text-xs text-purple-300 mt-2">Focused Study Interval · Break Reminder Active</p>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-center gap-3">
+          <button id="start-timer-btn" type="button" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-bold text-white shadow-lg">Start / Pause</button>
+          <button id="reset-timer-btn" type="button" class="px-5 py-2.5 rounded-xl bg-purple-900 hover:bg-purple-800 text-xs font-semibold text-purple-200">Reset 25m</button>
+          <button id="simulate-10h-btn" type="button" class="px-5 py-2.5 rounded-xl bg-rose-600/30 hover:bg-rose-600/50 border border-rose-400/40 text-xs font-bold text-rose-200">Simulate &gt;10h Study Alert</button>
+        </div>
+
+        <div id="overstudy-alert-box" class="hidden p-4 rounded-2xl bg-rose-950/90 border border-rose-400/50 text-xs text-rose-100">
+          🛑 <strong>Rest Reminder (10+ Hours Logged Today):</strong> You have studied for over 10 hours today. Synera recommends wrapping up your session and getting sufficient sleep so your brain can consolidate long-term memory!
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         VIEW 7: CLICKABLE STUDY DNA BY SUBJECT & INTERACTIVE AI CHAT
+         ========================================================= -->
+    <section id="view-phase-7" class="app-view hidden space-y-6">
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+
+        <!-- Left (5 cols): Clickable Study DNA Subject Explorer + Exam Planner -->
+        <div class="md:col-span-5 glass-card rounded-3xl p-6 space-y-5">
+          <div class="flex items-center justify-between">
+            <div>
+              <span class="text-xs font-bold uppercase tracking-wider text-purple-300">Subject Breakdown</span>
+              <h2 class="text-xl font-extrabold text-white mt-0.5">Your Study DNA</h2>
+            </div>
+            <button id="toggle-dna-subjects-btn" type="button" class="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-xs font-bold text-white transition">
+              📂 View All Subjects ▾
+            </button>
+          </div>
+
+          <div id="dna-subjects-panel" class="space-y-3">
+            <div class="flex gap-2">
+              <input id="new-subject-input" type="text" placeholder="Add subject (e.g. Calculus, Physics)..." class="flex-1 rounded-xl bg-purple-950/70 border border-purple-500/30 px-3 py-2 text-xs text-white placeholder-purple-300/50" />
+              <button id="add-subject-btn" type="button" class="px-3 py-2 rounded-xl bg-fuchsia-600 hover:bg-fuchsia-500 text-xs font-bold text-white shrink-0">
+                + Add
+              </button>
+            </div>
+
+            <div id="dna-subjects-list" class="space-y-2.5 text-xs">
+              <div id="dna-empty-state" class="p-4 rounded-2xl bg-purple-950/50 border border-purple-500/20 text-center text-purple-300/75">
+                No subjects recorded yet. Upload lecture materials in Module 2 or add a subject above to view your Study DNA breakdown!
+              </div>
+            </div>
+          </div>
+
+          <!-- Interactive Exam Score Input & Next Plan -->
+          <div class="p-4 rounded-2xl bg-purple-950/60 border border-purple-500/25 space-y-3 text-xs">
+            <p class="font-bold text-white">📈 Exam Score Tracker &amp; Next Target Plan</p>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label for="last-exam-input" class="text-[11px] text-purple-300 block mb-1">Last Exam Score (%)</label>
+                <input id="last-exam-input" type="number" min="0" max="100" placeholder="e.g. 68" class="w-full rounded-xl bg-purple-900/60 border border-purple-400/30 px-3 py-1.5 text-white font-bold" />
+              </div>
+              <div>
+                <label for="target-exam-input" class="text-[11px] text-purple-300 block mb-1">Next Target (%)</label>
+                <input id="target-exam-input" type="number" min="0" max="100" placeholder="e.g. 85" class="w-full rounded-xl bg-purple-900/60 border border-purple-400/30 px-3 py-1.5 text-emerald-300 font-bold" />
+              </div>
+            </div>
+            <button id="calc-exam-plan-btn" type="button" class="w-full py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold transition">
+              Calculate Revision Plan
+            </button>
+            <p id="exam-plan-output" class="text-purple-200/80 leading-relaxed pt-1">
+              No exam scores entered yet. Enter your last score and target above to generate a revision plan.
+            </p>
+          </div>
+        </div>
+
+        <!-- Right (7 cols): Direct, Context-Aware Academic & Math AI Chatbot -->
+        <div class="md:col-span-7 glass-card rounded-3xl p-6 flex flex-col justify-between space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <span class="text-xs font-bold uppercase tracking-wider text-fuchsia-300">Direct Academic &amp; Math Reasoning Engine</span>
+              <h2 class="text-xl font-extrabold text-white mt-0.5">Chat with Synera AI</h2>
+            </div>
+            <button id="toggle-api-key-btn" type="button" class="px-3 py-1 rounded-xl bg-purple-950/80 hover:bg-purple-900 border border-purple-400/30 text-[11px] font-semibold text-purple-200">
+              🔑 Connect Gemini API Key
+            </button>
+          </div>
+
+          <!-- Optional Live Gemini API Key Bar -->
+          <div id="api-key-box" class="hidden p-3 rounded-2xl bg-purple-950/90 border border-purple-400/30 space-y-2 text-xs">
+            <p class="text-purple-200">Paste your Google Gemini API key to enable full Gemini LLM extraction, quiz generation, and open-ended chat:</p>
+            <div class="flex gap-2">
+              <input id="gemini-api-key-input" type="password" placeholder="AIzaSy..." class="flex-1 rounded-xl bg-black/50 border border-purple-500/30 px-3 py-1.5 text-white" />
+              <button id="save-api-key-btn" type="button" class="px-3 py-1.5 rounded-xl bg-emerald-600 text-white font-bold">Save Key</button>
+            </div>
+          </div>
+
+          <div id="ai-chat-history" class="space-y-3 max-h-72 overflow-y-auto custom-scroll pr-1 text-xs">
+            <div class="p-3.5 rounded-2xl bg-purple-950/80 border border-purple-500/30 text-purple-100">
+              <strong>Synera AI:</strong> Hi Erina! Ask me any mathematics or academic question (for example: <code>4a + 4a = 2. What is a?</code>), or ask a follow-up question about your uploaded notes.
+            </div>
+          </div>
+
+          <div class="flex flex-wrap gap-2">
+            <button type="button" data-prompt="4a + 4a = 2. What is a?" class="chat-chip-btn px-3 py-1.5 rounded-xl bg-purple-900/60 hover:bg-purple-800 text-[11px] text-purple-200 border border-purple-500/30">
+              🧮 4a + 4a = 2. What is a?
+            </button>
+            <button type="button" data-prompt="What if it equals 16 instead?" class="chat-chip-btn px-3 py-1.5 rounded-xl bg-purple-900/60 hover:bg-purple-800 text-[11px] text-purple-200 border border-purple-500/30">
+              🔄 Follow-up: What if it equals 16?
+            </button>
+            <button type="button" data-prompt="Summarize my uploaded lecture material" class="chat-chip-btn px-3 py-1.5 rounded-xl bg-purple-900/60 hover:bg-purple-800 text-[11px] text-purple-200 border border-purple-500/30">
+              📝 Summarize uploaded notes
+            </button>
+          </div>
+
+          <div class="flex gap-2">
+            <input id="ai-chat-input" type="text" placeholder="Ask a math problem, academic question, or follow-up..." class="flex-1 rounded-2xl bg-purple-950/70 border border-purple-500/30 px-4 py-2.5 text-xs text-white" />
+            <button id="send-chat-btn" type="button" class="px-5 py-2.5 rounded-2xl bg-purple-600 hover:bg-purple-500 text-xs font-bold text-white">Send</button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Main JavaScript File -->
+  <script src="script.js"></script>
+</body>
+</html>
